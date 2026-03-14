@@ -1,0 +1,81 @@
+# ============ BUILD OUTPUT ============
+bin/
+obj/
+dist/
+publish/
+*.dll
+*.exe
+*.so
+*.dylib
+
+# ============ VISUAL STUDIO ============
+.vs/
+.vscode/
+*.sln.iml
+*.user
+*.suo
+*.userprefs
+*.ncb
+*.jfm
+
+# ============ RIDER ============
+.idea/
+*.sln.iml
+*.rider/
+
+# ============ SENSITIVE DATA - NEVER COMMIT ============
+appsettings.json
+appsettings.*.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+!appsettings.example.json
+!appsettings.Development.example.json
+
+# ============ ENVIRONMENT VARIABLES ============
+.env
+.env.local
+.env.*.local
+
+# ============ USER SECRETS ============
+secrets.json
+.vs/
+%APPDATA%/Microsoft/UserSecrets/
+
+# ============ DATABASE ============
+*.db
+*.sqlite
+*.sqlite3
+database.mdf
+database.ldf
+
+# ============ PACKAGES ============
+packages/
+.nuget/
+nuget.config
+
+# ============ LOGS ============
+logs/
+*.log
+*.logs
+trace.log
+
+# ============ OS ============
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ============ TESTING ============
+TestResults/
+.coverage
+*.trx
+
+# ============ RUNTIME ============
+appsettings.json
+Properties/launchSettings.json
+
+# ============ NODE (if using npm/yarn) ============
+node_modules/
+package-lock.json
+yarn.lock
