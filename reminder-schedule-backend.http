@@ -1,0 +1,6 @@
+@reminder_schedule_backend_HostAddress = http://localhost:5104
+
+GET {{reminder_schedule_backend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
