@@ -6,7 +6,10 @@
 
         public DayOfWeek day{ get; set; }
 
-        public int? classId { get; set; }
+        public int teacherId { get; set; }
+        public Teacher teacher { get; set; } = null!;
+
+        public int classId { get; set; }
         public Class Class { get; set; } = null!;
 
         public int subjectId { get; set; }
