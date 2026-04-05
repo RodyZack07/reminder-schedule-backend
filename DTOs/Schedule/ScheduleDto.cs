@@ -5,6 +5,15 @@ namespace reminder_schedule_backend.DTOs.Schedule
 {
     public class ScheduleCreateDto
     {
+        [Required(ErrorMessage = "Guru harus dipilih")]
+        [Range(1, int.MaxValue, ErrorMessage = " Guru Id tidak valid")]
+        public int teacherId { get; set; }
+
+
+        [Required(ErrorMessage = "Kelas harus dipilih")]
+        [Range(1, int.MaxValue, ErrorMessage = " Kelas Id tidak valid")]
+        public int classId { get; set; }
+
         [Required(ErrorMessage = "Subject harus dipilih")]
         [Range(1, int.MaxValue, ErrorMessage = " SubjectID tidak valid")]
         public int subjectId { get; set; }
@@ -21,16 +30,30 @@ namespace reminder_schedule_backend.DTOs.Schedule
 
     public class ScheduleUpdateDto 
     {
-        
+        [Range(1, int.MaxValue, ErrorMessage = " Guru Id tidak valid")]
+        public int teacherId { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = " Kelas Id tidak valid")]
+        public int classId { get; set; }
+
         [Range(1, int.MaxValue, ErrorMessage = " SubjectID tidak valid")]
         public int? subjectId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "SessionID tidak valid")]
         public int? sessionId { get; set; }
 
-     }
+        [Range(1, 7, ErrorMessage = " Pilih hari 1 - 7")]
+        public int day { get; set; }
+
+    }
 
     public class ScheduleResponseDto { 
+
+        public int teacherId { get; set; }
+        public string? teacherName { get; set; }
+
+        public int classId { get; set; }
+        public string? className { get; set; }
 
         public int subjectId { get; set; }
         public string? subjectName { get; set; }
@@ -40,8 +63,6 @@ namespace reminder_schedule_backend.DTOs.Schedule
 
         public TimeSpan? startTime { get; set; }
         public TimeSpan? endTime { get; set; }
-
-
 
     }
 }
