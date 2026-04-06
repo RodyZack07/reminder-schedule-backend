@@ -31,9 +31,10 @@ namespace reminder_schedule_backend.Services
         }
 
         //---------------------------CREATE SCHEDULE---------------------------
-        public async Task CreateAsync(ScheduleCreateDto dto)
+        public async Task<ScheduleResponseDto> CreateAsync (ScheduleCreateDto dto)
         {
-
+            await ValidateForeignKey(dto.teacherId, dto.classId, dto.subjectId, dto.sessionId);
+            await CheckConflictAsync((DayOfWeek)dto.day, dto.sessionId, dto.classId, dto.teacherId);
         }
 
         //---------------------------DELETE SCHEDULE---------------------------
