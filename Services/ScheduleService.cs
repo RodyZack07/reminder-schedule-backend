@@ -17,8 +17,6 @@ namespace reminder_schedule_backend.Services
 
         public ScheduleService(AppDbContext db) => _db = db;
 
-    
-
         //---------------------------GET ALL SCHEDULES---------------------------
         public async Task<List<ScheduleResponseDto>> GetAllAsync()
         {
@@ -32,6 +30,23 @@ namespace reminder_schedule_backend.Services
             return schedules.Select(ToScheduleResponseDto).ToList();
         }
 
+        //---------------------------CREATE SCHEDULE---------------------------
+        public async Task CreateAsync(ScheduleCreateDto dto)
+        {
+
+        }
+
+        //---------------------------DELETE SCHEDULE---------------------------
+        public async Task DeleteSync(int id)
+        {
+            var schedule = await _db.Schedules.FindAsync(id);
+            if (schedule == null)
+                throw new NotFoundException(" Jadwal tidak ditemukan");
+
+
+            _db.Schedules.Remove(schedule);
+            await _db.SaveChangesAsync();
+        }
 
         //---------------------------CHECK FOREIGN KEY VALIDATION---------------------------
         private async Task ValidateForeignKey (int teacherId, int classId, int subjectId, int sessionId)
