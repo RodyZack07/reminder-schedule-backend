@@ -7,7 +7,7 @@ using reminder_schedule_backend.Data;
 using reminder_schedule_backend.DTOs.Schedule;
 using reminder_schedule_backend.Models;
 using reminder_schedule_backend.Exceptions;
-using System.Security.Authentication.ExtendedProtection;
+
 
 namespace reminder_schedule_backend.Services
 {
@@ -25,20 +25,33 @@ namespace reminder_schedule_backend.Services
                     .Include(s => s.Class)
                     .Include(s => s.subject)
                     .Include(s => s.session)
+                    .OrderBy(s => s.day)
+                    .ThenBy(s => s.session.startime)
                     .ToListAsync();
 
             return schedules.Select(ToScheduleResponseDto).ToList();
         }
 
         //---------------------------CREATE SCHEDULE---------------------------
-        public async Task<ScheduleResponseDto> CreateAsync (ScheduleCreateDto dto)
+        public async Task<ScheduleResponseDto> CreateScheduleAsync (ScheduleCreateDto dto)
         {
             await ValidateForeignKey(dto.teacherId, dto.classId, dto.subjectId, dto.sessionId);
             await CheckConflictAsync((DayOfWeek)dto.day, dto.sessionId, dto.classId, dto.teacherId);
+
+            var schedule = new Schedule
+            {
+                day = DayOfWeek(dto.day),
+                teacherId = dto.teacherId,
+                classId = dto.classId,
+                subjectId = dto.subjectId,
+                sessionId = dto.sessionId
+            };
+
+            return ToScheduleResponseDto(schedule);
         }
 
         //---------------------------DELETE SCHEDULE---------------------------
-        public async Task DeleteSync(int id)
+        public async Task DeleteScheduleAsync(int id)
         {
             var schedule = await _db.Schedules.FindAsync(id);
             if (schedule == null)

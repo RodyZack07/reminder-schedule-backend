@@ -13,7 +13,55 @@ namespace reminder_schedule_backend.Services
 
 
         //---------------------------GET ALL SESSIONS----------------------
+        public async Task<List<SessionResponseDto>> GetAllSessions()
+        {
+            var sessions = await _db.Sessions.ToListAsync();
+            return sessions.Select(ToSessionResponseDto).ToList();
+        }
 
+
+        //---------------------------CREATE SESSION----------------------
+        public async Task<SessionResponseDto> CreateSessionAsync(SessionCreateDto dto)
+        {
+            if(dto.EndTime <= dto.StarTime) 
+                throw new BadRequestException("End time must be greater than start time");
+
+            if (await CheckConflict(dto.StarTime, dto.EndTime)) 
+                throw new BadRequestException("Session time conflicts with an existing session");
+
+            var session = new Session
+            {
+                Name = dto.Name,
+                startime = dto.StarTime,
+                endime = dto.EndTime
+            };
+
+            return ToSessionResponseDto(session);
+
+        }
+
+
+        //-----------------------------UPDATE SESSION----------------------
+        public async Task<SessionResponseDto> UpdateSessionAsync(int id, SessionUpdateDto dto)
+        {
+            var session = await _db.Sessions.FindAsync(id);
+
+            if (session == null) throw new NotFoundException("Session not found");
+
+            if(dto.EndTime <= dto.StarTime) 
+                throw new BadRequestException("End time must be greater than start time"); 
+            
+            if (await CheckConflict(dto.StarTime, dto.EndTime))
+                    throw new BadRequestException("Session time conflicts with an existing session");
+
+
+            session.Name = dto.Name;
+            session.startime = dto.StarTime;
+            session.endime = dto.EndTime;
+
+            return ToSessionResponseDto(session);
+
+        }
 
 
         //---------------------------DELETE SESSION----------------------
