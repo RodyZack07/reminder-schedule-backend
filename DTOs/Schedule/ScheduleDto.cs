@@ -48,7 +48,8 @@ namespace reminder_schedule_backend.DTOs.Schedule
     }
 
     public class ScheduleResponseDto { 
-
+        
+        public int id { get; set; }
         public int teacherId { get; set; }
         public string? teacherName { get; set; }
 
@@ -63,6 +64,8 @@ namespace reminder_schedule_backend.DTOs.Schedule
 
         public TimeSpan? startTime { get; set; }
         public TimeSpan? endTime { get; set; }
+
+        public DayOfWeek day { get; set; }
 
     }
 }
