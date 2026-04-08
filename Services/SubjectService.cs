@@ -12,6 +12,20 @@ namespace reminder_schedule_backend.Services
         public SubjectService(AppDbContext db) => _db = db;
 
         //---------------------------GET ALL SUBJECTS----------------------
+        public async Task<List<SubjectResponseDto>> GetAllSchedulesAsync()
+        {
+            var subjects = await _db.Subjects.ToListAsync();
+            return subjects.Select(ToSubjectResponseDto).ToList();
+        }
+
+        //---------------------------GET SUBJECT BY ID----------------------
+        public async Task<SubjectResponseDto> GetSubjectByIdAsync(int id)
+        {
+            var subject = await _db.Subjects.FindAsync(id);
+            if (subject == null)
+                throw new NotFoundException($"Subject with id {id} not found.");
+            return ToSubjectResponseDto(subject);
+        }
 
 
         //---------------------------CREATE SUBJECT------------------------
@@ -26,6 +40,20 @@ namespace reminder_schedule_backend.Services
             _db.Subjects.Add(subject);
             await _db.SaveChangesAsync();
 
+            return ToSubjectResponseDto(subject);
+        }
+
+
+        //---------------------------UPDATE SUBJECT------------------------
+        public async Task<SubjectResponseDto> UpdateSubjectAsync (int id, SubjectUpdateDto dto)
+        {
+            var subject = await _db.Subjects.FindAsync(id);
+            if (subject == null)
+                throw new NotFoundException($"Subject with id {id} not found.");
+
+            subject.Name = dto.Name;
+
+            await _db.SaveChangesAsync();
             return ToSubjectResponseDto(subject);
         }
 
