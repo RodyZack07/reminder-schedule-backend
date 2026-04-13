@@ -24,9 +24,10 @@ namespace reminder_schedule_backend.Services
                     .Include(t => t.teacher)
                     .Include(s => s.Class)
                     .Include(s => s.subject)
-                    .Include(s => s.session)
+                    .Include(s => s.sessionStart)
+                    .Include(s => s.sessionEnd)
                     .OrderBy(s => s.day)
-                    .ThenBy(s => s.session.startime)
+                    .ThenBy(s => s.sessionStart.startime)
                     .ToListAsync();
 
             return schedules.Select(ToScheduleResponseDto).ToList();
@@ -35,16 +36,17 @@ namespace reminder_schedule_backend.Services
         //---------------------------CREATE SCHEDULE---------------------------
         public async Task<ScheduleResponseDto> CreateScheduleAsync (ScheduleCreateDto dto)
         {
-            await ValidateForeignKey(dto.teacherId, dto.classId, dto.subjectId, dto.sessionId);
-            await CheckConflictAsync((DayOfWeek)dto.day, dto.sessionId, dto.classId, dto.teacherId);
+            await ValidateForeignKey(dto.teacherId, dto.classId, dto.subjectId, dto.sessionStartId, dto.sessionEndId);
+            await CheckConflictAsync((DayOfWeek)dto.day, dto.sessionStartId, dto.classId, dto.teacherId);
 
             var schedule = new Schedule
             {
-                day = DayOfWeek(dto.day),
+                day = (DayOfWeek)dto.day,
                 teacherId = dto.teacherId,
                 classId = dto.classId,
                 subjectId = dto.subjectId,
-                sessionId = dto.sessionId
+                sessionStartId = dto.sessionStartId,
+                sessionEndId = dto.sessionEndId
             };
 
             return ToScheduleResponseDto(schedule);
@@ -83,14 +85,16 @@ namespace reminder_schedule_backend.Services
                 s.id != excluded &&
                 s.day == day &&
                 s.classId == classId &&
-                s.sessionId == sessionId
+                s.sessionStartId == sessionId &&
+                s.sessionEndId == sessionId 
                 )) throw new ConflictException(" Jadwal bentrok untuk kelas ini pada hari dan sesi yang sama");
 
             if (await _db.Schedules.AnyAsync(s =>
                 s.id != excluded &&
                 s.day == day &&
                 s.teacherId == teacherId &&
-                s.sessionId == sessionId
+                s.sessionStartId == sessionId &&
+                s.sessionEndId == sessionId
                 )) throw new ConflictException(" Jadwal bentrok untuk guru ini pada hari dan sesi yang sama");
         }
 
@@ -100,7 +104,8 @@ namespace reminder_schedule_backend.Services
             await _db.Entry(s).Reference(sc => sc.teacher).LoadAsync();
             await _db.Entry(s).Reference(sc => sc.Class).LoadAsync();
             await _db.Entry(s).Reference(sc => sc.subject).LoadAsync();
-            await _db.Entry(s).Reference(sc => sc.session).LoadAsync();
+            await _db.Entry(s).Reference(sc => sc.sessionStart).LoadAsync();
+            await _db.Entry(s).Reference(sc => sc.sessionEnd).LoadAsync();
         }
         
 
@@ -115,9 +120,14 @@ namespace reminder_schedule_backend.Services
             className = s.teacher?.Name,
             subjectId = s.subjectId,
             subjectName = s.subject?.Name,
-            sessioId = s.sessionId,
-            startTime = s.session?.startime,
-            endTime = s.session?.endime
+
+            sessionStartId = s.sessionStartId,
+            sessionStartName = s.sessionStart?.Name,
+            sessionEndId = s.sessionEndId,
+            sessionEndName = s.sessionEnd?.Name,
+
+            startTime = s.sessionStart?.startime,
+            endTime = s.sessionEnd?.endime
 
         };
 

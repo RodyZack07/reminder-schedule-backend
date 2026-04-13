@@ -15,7 +15,9 @@
         public int subjectId { get; set; }
         public Subject subject { get; set; } = null!; 
 
-        public int sessionId { get; set; }
-        public Session session { get; set; } = null!;
+        public int sessionStartId { get; set; }
+        public int sessionEndId { get; set; }
+        public Session sessionStart { get; set; } = null!;
+        public Session sessionEnd { get; set; } = null!;
     }
 }
