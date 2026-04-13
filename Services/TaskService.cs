@@ -15,7 +15,14 @@ namespace reminder_schedule_backend.Services
         public TaskService(AppDbContext db) => _db = db;
 
         //---------------------------GET ALL TASKS----------------------
-        
+        public async Task<List<TaskResponseDto>> GetAllTasks()
+        {
+            var tasks = await _db.TaskReminders.Include(t => t.Schedule).ThenInclude(s => s.Class)
+                .Include(t => t.Schedule).ThenInclude(s => s.teacher)
+                .Include(t => t.Schedule).ThenInclude(s => s.subject)
+                .ToListAsync();
+            return tasks.Select(ToTaskResponseDto).ToList();
+        }
 
         public static TaskResponseDto ToTaskResponseDto(TaskReminder task) => new()
         {
