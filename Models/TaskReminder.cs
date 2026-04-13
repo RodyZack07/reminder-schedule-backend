@@ -10,6 +10,5 @@
             public int scheduleId { get; set; }
             public Schedule Schedule { get; set; } = null!;
         
-            
     }
 }

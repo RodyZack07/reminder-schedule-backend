@@ -7,8 +7,6 @@ namespace reminder_schedule_backend.DTOs.Task
          [Required(ErrorMessage = "Nama/Deskripsi tugas harus diisi tugas harus diisi")]
          public string description { get; set; } = null!;
          [Required] public DateTime reminderAt { get; set; }
-         [Required] public bool status { get; set; }
-         [Required] public int scheduleId { get; set; }
          
     }
 
@@ -16,7 +14,9 @@ namespace reminder_schedule_backend.DTOs.Task
     {
         [Required(ErrorMessage = "Nama/Deskripsi tugas harus diisi tugas harus diisi")]
         public string description { get; set; } = null!;
-        [Required] public DateTime reminderAt { get; set; }
+
+        [Required] 
+        public DateTime reminderAt { get; set; }
     } 
     
     public class TaskResponseDto
@@ -26,15 +26,11 @@ namespace reminder_schedule_backend.DTOs.Task
         public DateTime reminderAt { get; set; }
         public bool status { get; set; }
         public int scheduleId { get; set; }
-
-        public int id { get; set; }
         public string? teacherName { get; set; }
         public string? className { get; set; }
         public string? subjectName { get; set; }
         public TimeSpan? sessionStart{ get; set; }
         public DayOfWeek day { get; set; }
-
-
 
     }
 }

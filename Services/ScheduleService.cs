@@ -65,7 +65,7 @@ namespace reminder_schedule_backend.Services
         }
 
         //---------------------------CHECK FOREIGN KEY VALIDATION---------------------------
-        private async Task ValidateForeignKey (int teacherId, int classId, int subjectId, int sessionId)
+        private async Task ValidateForeignKey (int teacherId, int classId, int subjectId, int sessionStartId, int sessionEndId)
         {
             if (!await _db.Teachers.AnyAsync(t => t.Id == teacherId))
                 throw new NotFoundException("Guru tidak ditemukan");
@@ -73,8 +73,10 @@ namespace reminder_schedule_backend.Services
                 throw new NotFoundException("Kelas tidak ditemukan");
             if (!await _db.Subjects.AnyAsync(s => s.Id == subjectId))   
                 throw new NotFoundException("Mata pelajaran tidak ditemukan");
-            if (!await _db.Sessions.AnyAsync(s => s.Id == sessionId))
-                throw new NotFoundException("Sesi tidak ditemukan");
+            if (!await _db.Sessions.AnyAsync(s => s.Id == sessionStartId))
+                throw new NotFoundException("Sesi mulai tidak ditemukan");
+            if (!await _db.Sessions.AnyAsync(s => s.Id == sessionEndId))
+                throw new NotFoundException("Sesi akhir tidak ditemukan");
         }
 
 
