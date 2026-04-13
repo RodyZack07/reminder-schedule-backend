@@ -2,6 +2,7 @@
 {
     public class Student
     {   
+
             public int id { get; set; }
             public int nis { get; set; }
             public string nama { get; set; }

@@ -19,6 +19,7 @@ namespace reminder_schedule_backend.Data
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Class> Classses { get; set; }
         public DbSet<Admin> Admins { get; set; }
+        public DbSet<TaskReminder> TaskReminders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder model)
         {   
@@ -62,6 +63,23 @@ namespace reminder_schedule_backend.Data
                 .WithMany()
                 .HasForeignKey(s => s.subjectId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+
+            model.Entity<Schedule>()
+            .HasOne(s => s.teacher)
+            .WithMany(t => t.Schedules)
+            .HasForeignKey(s => s.teacherId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+       
+
+            // SCHEDULE - TASK
+            model.Entity<TaskReminder>()
+                .HasOne(t => t.Schedule)
+                .WithMany()
+                .HasForeignKey(t => t.scheduleId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(model);
         }

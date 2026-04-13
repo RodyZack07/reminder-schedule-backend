@@ -36,6 +36,10 @@ namespace reminder_schedule_backend.Services
                 endime = dto.EndTime
             };
 
+            //save to db
+            _db.Sessions.Add(session);
+            await _db.SaveChangesAsync();
+
             return ToSessionResponseDto(session);
 
         }
@@ -59,8 +63,10 @@ namespace reminder_schedule_backend.Services
             session.startime = dto.StarTime;
             session.endime = dto.EndTime;
 
-            return ToSessionResponseDto(session);
+            //update to db
+            await _db.SaveChangesAsync();
 
+            return ToSessionResponseDto(session);
         }
 
 
@@ -70,16 +76,19 @@ namespace reminder_schedule_backend.Services
             var session = await _db.Sessions.FindAsync(id);
             if (session == null) throw new NotFoundException("Session not found");
 
+            //delete from db
             _db.Sessions.Remove(session);
             await _db.SaveChangesAsync();
         }
 
 
         //---------------------------CHECK CONFLICT----------------------
-        public async Task<bool> CheckConflict(TimeSpan startTime, TimeSpan endTime)
+        public async Task<bool> CheckConflict(TimeSpan startTime, TimeSpan endTime, int excludeId = 0)
         {
             return await _db.Sessions.AnyAsync(s =>
-                (startTime < s.endime && endTime > s.startime) 
+                s.Id != excludeId &&
+                startTime < s.endime &&
+                endTime > s.startime
             );
         }
 

@@ -4,6 +4,10 @@ namespace reminder_schedule_backend.DTOs.Teacher
 {
     public class TeacherCreateDto
     {
+        [Required(ErrorMessage = "Nik harus diisi")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "Isi setidaknya 1 karakter")]
+        public string Nik { get; set; } = null!;
+
         [Required(ErrorMessage = "Nama guru harus diisi")]
         [StringLength(200, MinimumLength = 1, ErrorMessage = "Isi setidaknya 1 karakter")]
         public string Name { get; set; } = null!;
@@ -23,10 +27,33 @@ namespace reminder_schedule_backend.DTOs.Teacher
         public string Password { get; set; } = null!;
     }
 
-    public class TeacherResponseDto {
+    public class TeacherResponseDto {   
 
         public int Id { get; set; }
+        public string Nik { get; set; } = null!;
         public string Name { get; set; } = null!;
+       
+    }
 
+
+    //---------------------------TEACHER LOGIN DTO----------------------
+    public class TeacherLoginDto
+    {
+        [Required(ErrorMessage = "Nik harus diisi")]
+        [StringLength(100, MinimumLength = 1, ErrorMessage = "Isi setidaknya 1 karakter")]
+        public string Nik { get; set; } = null!;
+
+        [Required(ErrorMessage = "Password harus diisi")]
+        [StringLength(200, MinimumLength = 6, ErrorMessage = "Isi setidaknya 6 karakter")]
+        public string Password { get; set; } = null!;
+    }
+
+    //---------------------------TEACHER LOGIN RESPONSE DTO----------------------
+    public class TeacherLoginResponseDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = null!;
+        public string Nik { get; set; } = null!;
+        public string Token { get; set; } = null!;
     }
 }
