@@ -12,7 +12,7 @@ namespace reminder_schedule_backend.Services
         public SubjectService(AppDbContext db) => _db = db;
 
         //---------------------------GET ALL SUBJECTS----------------------
-        public async Task<List<SubjectResponseDto>> GetAllSchedulesAsync()
+        public async Task<List<SubjectResponseDto>> GetAllSubjectsAsync()
         {
             var subjects = await _db.Subjects.ToListAsync();
             return subjects.Select(ToSubjectResponseDto).ToList();
