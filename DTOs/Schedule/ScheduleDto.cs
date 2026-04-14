@@ -75,9 +75,9 @@ namespace reminder_schedule_backend.DTOs.Schedule
         public string? subjectName { get; set; }
 
         public int sessionStartId { get; set; }
-        public string? sessionStartName { get; set; }   // misal "Jam ke-1"
+        public string? sessionStartName { get; set; }   
         public int sessionEndId { get; set; }
-        public string? sessionEndName { get; set; }     // misal "Jam ke-3"
+        public string? sessionEndName { get; set; }     
 
         // Ambil dari sessionStart dan sessionEnd — tetap berguna untuk
         // MAUI app agar langsung tahu rentang jam tanpa parse nested object
