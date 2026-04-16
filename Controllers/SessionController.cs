@@ -26,7 +26,11 @@ namespace reminder_schedule_backend.Controllers
         //-------------------------------GET SESSION BY ID-------------------------------
         [HttpGet("{id:int}")]
         [Authorize(Roles = "admin")]
-      
+        public async Task<IActionResult> GetById(int id)
+        { 
+            //var result = await _service.Get(id);
+            //return Ok(new { success = true, message = $"Sesi dengan id {id} ditemukan", data = result });
+        }
 
         //-------------------------------CREATE SESSION-------------------------------
         [HttpPost]

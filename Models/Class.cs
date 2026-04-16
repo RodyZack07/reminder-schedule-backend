@@ -3,13 +3,9 @@
     public class Class
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
+        public string Grade { get; set; } = null!;
 
-        public Teacher? Teacher { get; set; }
-        public int? TeacherId { get; set; } 
-        
-        public ICollection<Student> students { get; set; } = new List<Student>();
-        public ICollection<Schedule> schedules { get; set; } = new List<Schedule>();
-       
+
     }
 }
