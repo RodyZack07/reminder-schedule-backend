@@ -63,7 +63,7 @@ namespace reminder_schedule_backend.DTOs.Schedule
     public class ScheduleResponseDto
     {
         public int id { get; set; }
-        public int day { get; set; }
+        public DayOfWeek day { get; set; }
 
         public int teacherId { get; set; }
         public string? teacherName { get; set; }

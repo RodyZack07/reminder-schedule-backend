@@ -30,18 +30,58 @@ namespace reminder_schedule_backend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetById(int id)
         {
-
+            var result = await _service.GetByIdAsync(id);
+            return Ok(new { success = true, message = $"Jadwal dengan id {id} ditemukan", data = result });
         }
 
-        //-------------------------------CREATE SCHEDULE-------------------------------
+        //------------------------------GET SCHEDULES BY TEACHER ID-------------------------------
+        [HttpGet("teacher/{teacherId:int}")]
+        [Authorize(Roles = "admin,teacher")]
+        public async Task<IActionResult> GetByTeacherId(int teacherId)
+        {
+            var result = await _service.GetScheduleByTeacherAsync(teacherId);
+            return Ok(new { success = true, message = $"{result.Count} jadwal ditemukan untuk guru dengan ID {teacherId}", data = result });
+        }
+
+        //------------------------------GET SCHEDULES BY TODAY-----------------------------------
+        [HttpGet("teacher/{teacherId:int}/today")]
+        [Authorize(Roles = "admin,teacher")]
+        public async Task<IActionResult> GetToday(int teacherId)
+        {
+            var result = await _service.GetScheduleTodayAsync(teacherId);
+            return Ok(new { success = true, message = $"{result.Count} jadwal ditemukan untuk hari ini", data = result });
+        }
+
+        //-------------------------------CREATE SCHEDULE-----------------------------------------
         [HttpPost]
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Create([FromBody] ScheduleCreateDto dto)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Data tidak valid", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            }
+
             var result = await _service.CreateScheduleAsync(dto);
             return CreatedAtAction(nameof(GetById),
                 new { id = result.id },
-                new { success = true, message = "Jadwal berhasil dibuat", data = result });)
+                new { success = true, message = "Jadwal berhasil dibuat", data = result });
+        }
+
+        //-------------------------------UPDATE SCHEDULE-------------------------------
+        [HttpPatch("{id:int}")]
+        [Authorize(Roles = "admin")]    
+        public async Task<IActionResult> Update(int id, [FromBody] ScheduleUpdateDto dto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { success = false, message = "Data tidak valid", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage) });
+            }
+
+            var result = await _service.UpdateScheduleAsync(id, dto);
+            return Ok(new { success = true, message = "Jadwal berhasil diperbarui", data = result });
+
+
         }
 
         //-------------------------------DELETE SCHEDULE-------------------------------

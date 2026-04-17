@@ -21,10 +21,10 @@ namespace reminder_schedule_backend.DTOs.Teacher
     public class TeacherUpdateDto
     {
         [StringLength(200, MinimumLength = 1, ErrorMessage = "Isi setidaknya 1 karakter")]
-        public string Name { get; set; } = null!;
+        public string? Name { get; set; } = null!;
 
         [StringLength(200, MinimumLength = 6, ErrorMessage = "Isi setidaknya 6 karakter")]
-        public string Password { get; set; } = null!;
+        public string? Password { get; set; } = null!;
     }
 
     public class TeacherResponseDto {   
