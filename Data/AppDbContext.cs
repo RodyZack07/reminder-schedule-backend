@@ -17,7 +17,7 @@ namespace reminder_schedule_backend.Data
         public DbSet<Teacher> Teachers { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Subject> Subjects { get; set; }
-        public DbSet<Class> Classses { get; set; }
+        public DbSet<Class> Classes { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<TaskReminder> TaskReminders { get; set; }
 

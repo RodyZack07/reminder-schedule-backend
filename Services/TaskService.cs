@@ -24,6 +24,53 @@ namespace reminder_schedule_backend.Services
             return tasks.Select(ToTaskResponseDto).ToList();
         }
 
+        //---------------------------GET TASK BY ID----------------------
+        public async Task<TaskResponseDto?> GetTaskById(int id)
+        {
+            var task = await _db.TaskReminders.Include(t => t.Schedule).ThenInclude(s => s.Class)
+                .Include(t => t.Schedule).ThenInclude(s => s.teacher)
+                .Include(t => t.Schedule).ThenInclude(s => s.subject)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            return task is null ? null : ToTaskResponseDto(task);
+        }
+
+        //---------------------------GET TASK BY TEACHER ID----------------------
+        public async Task<List<TaskResponseDto>> GetTasksByTeacherId(int teacherId)
+        {
+            var tasks = await _db.TaskReminders.Include(t => t.Schedule).ThenInclude(s => s.Class)
+                .Include(t => t.Schedule).ThenInclude(s => s.teacher)
+                .Include(t => t.Schedule).ThenInclude(s => s.subject)
+                .Where(t => t.Schedule.teacherId == teacherId)
+                .ToListAsync();
+            return tasks.Select(ToTaskResponseDto).ToList();
+        }
+
+        //---------------------------CREATE TASK----------------------
+        public async Task<TaskResponseDto> CreateTask(TaskCreateDto dto )
+        {
+            var task = new TaskReminder
+            {
+                description = dto.description,
+                remindAt = dto.reminderAt,
+                status = false,
+                
+            };
+
+            _db.TaskReminders.Add(task);
+            await _db.SaveChangesAsync();
+            return ToTaskResponseDto(task);
+        }
+
+        //---------------------------DELETE TASK----------------------
+        public async Task DeleteTask (int id)
+        {
+            var task = await _db.TaskReminders.FindAsync(id);
+            if (task == null) throw new Exception("Task not found");
+
+            _db.TaskReminders.Remove(task);
+            await _db.SaveChangesAsync();
+        }
+
         public static TaskResponseDto ToTaskResponseDto(TaskReminder task) => new()
         {
 

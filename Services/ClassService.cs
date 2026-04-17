@@ -17,7 +17,7 @@ namespace reminder_schedule_backend.Services
         //---------------------------GET ALL CLASSES---------------------------
         public async Task<List<ClassResponseDto>> GetAllAync()
         {
-            var result = await _db.Classses.ToListAsync();
+            var result = await _db.Classes.ToListAsync();
             return result.Select(c => ToClassResponseDto(c)).ToList();
 
         }
@@ -26,7 +26,7 @@ namespace reminder_schedule_backend.Services
         //---------------------------GET CLASS BY ID---------------------------
         public async Task<ClassResponseDto> GetByIdAsync(int id)
         {
-            var result = await _db.Classses.FindAsync(id);
+            var result = await _db.Classes.FindAsync(id);
             if (result == null) throw new NotFoundException("Class not found");
             return ToClassResponseDto(result);
         }
@@ -41,7 +41,7 @@ namespace reminder_schedule_backend.Services
                 Grade = dto.Grade
             };
 
-            _db.Classses.Add(c);
+            _db.Classes.Add(c);
             await _db.SaveChangesAsync();
             return ToClassResponseDto(c);
         }
@@ -50,7 +50,7 @@ namespace reminder_schedule_backend.Services
         //---------------------------UPDATE CLASS---------------------------
         public async Task<ClassResponseDto> UpdateAsync(int id, ClassUpdateDto dto)
         {
-            var result = await _db.Classses.FindAsync(id);
+            var result = await _db.Classes.FindAsync(id);
             if (result == null) throw new NotFoundException("Class not found");
 
             result.Name = dto.Name;
@@ -63,10 +63,10 @@ namespace reminder_schedule_backend.Services
         //---------------------------DELETE CLASS---------------------------
         public async Task DeleteAsync(int id)
         {
-            var result = await _db.Classses.FindAsync(id);
+            var result = await _db.Classes.FindAsync(id);
             if (result == null) throw new NotFoundException("Class not found");
 
-            _db.Classses.Remove(result);
+            _db.Classes.Remove(result);
             await _db.SaveChangesAsync();
         }
 
