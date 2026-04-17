@@ -19,6 +19,14 @@ namespace reminder_schedule_backend.Services
             return sessions.Select(ToSessionResponseDto).ToList();
         }
 
+        //---------------------------GET SESSION BY ID----------------------
+        public async Task<SessionResponseDto> GetSessionByIdAsync(int id)
+        {
+            var session = await _db.Sessions.FindAsync(id);
+            if (session == null) throw new NotFoundException("Session not found");
+            return ToSessionResponseDto(session);
+        }
+
 
         //---------------------------CREATE SESSION----------------------
         public async Task<SessionResponseDto> CreateSessionAsync(SessionCreateDto dto)
@@ -32,8 +40,8 @@ namespace reminder_schedule_backend.Services
             var session = new Session
             {
                 Name = dto.Name,
-                startime = dto.StarTime,
-                endime = dto.EndTime
+                startTime = dto.StarTime,
+                endTime = dto.EndTime
             };
 
             //save to db
@@ -60,8 +68,8 @@ namespace reminder_schedule_backend.Services
 
 
             session.Name = dto.Name;
-            session.startime = dto.StarTime;
-            session.endime = dto.EndTime;
+            session.startTime = dto.StarTime;
+            session.endTime = dto.EndTime;
 
             //update to db
             await _db.SaveChangesAsync();
@@ -87,8 +95,8 @@ namespace reminder_schedule_backend.Services
         {
             return await _db.Sessions.AnyAsync(s =>
                 s.Id != excludeId &&
-                startTime < s.endime &&
-                endTime > s.startime
+                startTime < s.endTime &&
+                endTime > s.startTime
             );
         }
 
@@ -97,8 +105,8 @@ namespace reminder_schedule_backend.Services
         {
             Id = session.Id,
             Name = session.Name,
-            StarTime = session.startime,
-            EndTime = session.endime
+            StarTime = session.startTime,
+            EndTime = session.endTime
         };
 
 

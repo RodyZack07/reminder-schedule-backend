@@ -47,7 +47,35 @@ namespace reminder_schedule_backend.Controllers
         [Authorize(Roles ="admin")]
         public async Task<IActionResult> Update(int id, [FromBody] TeacherUpdateDto dto)
         {
-           
+           var result = await _service.UpdateTeacherAsync(id, dto);
+           return Ok(new { success = true, message = $"Guru dengan id {id} berhasil diperbarui", data = result });
+        }
+
+        //-------------------------------LOGIN TEACHER-------------------------------
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] TeacherLoginDto dto)
+        {
+            var result = await _service.LoginTeacherAsync(dto, Response);
+            return Ok(new { success = true, message = "Login berhasil", data = result });
+        }
+
+        //-------------------------------REFRESH TOKEN-------------------------------
+        [HttpPost("refresh")]
+        [AllowAnonymous]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var result = await _service.RefreshTokenAsync(Request, Response);
+            return Ok(new { success = true, message = "Token berhasil diperbarui", data = result });
+        }
+
+        //-------------------------------LOGOUT TEACHER-------------------------------
+        [HttpPost("logout")]
+        [Authorize(Roles = "teacher")]
+        public async Task<IActionResult> Logout()
+        {
+            await _service.LogoutTeacherAsync(Request, Response);
+            return Ok(new { success = true, message = "Logout berhasil" });
         }
 
         //-------------------------------DELETE TEACHER-------------------------------

@@ -5,7 +5,7 @@
 
             public int id { get; set; }
             public int nis { get; set; }
-            public string nama { get; set; }
+            public string nama { get; set; } = null!;
             public DateTime tanggalLahir { get; set; }
             public int? classId { get; set; }
             public Class Class { get; set; } = null!;

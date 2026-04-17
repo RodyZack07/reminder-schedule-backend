@@ -46,7 +46,7 @@ namespace reminder_schedule_backend.Controllers
             var result = await _service.CreateScheduleAsync(dto);
             return CreatedAtAction(nameof(GetById),
                 new { id = result.id },
-                new { success = true, message = "Jadwal berhasil dibuat", data = result });)
+                new { success = true, message = "Jadwal berhasil dibuat", data = result });
         }
 
         //-------------------------------UPDATE SCHEDULE-------------------------------

@@ -14,6 +14,9 @@ namespace reminder_schedule_backend.Controllers
     {
         public readonly SessionService _service;
         public SessionController(SessionService service ) => _service = service;
+
+
+
         //-------------------------------GET ALL SESSIONS-------------------------------
         [HttpGet]
         [Authorize(Roles = "admin")]
@@ -28,8 +31,8 @@ namespace reminder_schedule_backend.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetById(int id)
         { 
-            //var result = await _service.Get(id);
-            //return Ok(new { success = true, message = $"Sesi dengan id {id} ditemukan", data = result });
+            var result = await _service.GetSessionByIdAsync(id);
+            return Ok(new { success = true, message = $"Sesi dengan id {id} ditemukan", data = result });
         }
 
         //-------------------------------CREATE SESSION-------------------------------
