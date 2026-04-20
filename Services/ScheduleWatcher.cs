@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using reminder_schedule_backend.Data;
 
 namespace reminder_schedule_backend.Services
@@ -45,36 +45,49 @@ namespace reminder_schedule_backend.Services
                 .Include(s => s.subject)
                 .Include(s => s.Class)
                 .Include(s => s.sessionStart)
+                .Include(s => s.sessionEnd) // TAMBAHKAN INI
                 .Where(s => s.day == hariSkg)
                 .ToListAsync();
 
-            // 3. FILTER JADWAL (FIX ERROR TIMESPAN)
-            // Karena startTime adalah TimeSpan, kita cocokkan Jam dan Menit-nya secara matematik
+            // 3. LOGIKA NOTIFIKASI MULAI MENGAJAR
             var schedulesMulaiSekarang = schedules.Where(s =>
                 s.sessionStart != null &&
                 s.sessionStart.startTime.Hours == sekarangWIB.Hour &&
                 s.sessionStart.startTime.Minutes == sekarangWIB.Minute
             ).ToList();
 
-            // 4. KIRIM NOTIFIKASI
             foreach (var s in schedulesMulaiSekarang)
             {
-                if (!string.IsNullOrEmpty(s.teacher?.fcmToken))
-                {
-                    try
-                    {
-                        await firebase.SendNotificationAsync(
-                            s.teacher.fcmToken,
-                            "🔔 Waktunya Mengajar!",
-                            $"Pak/Bu {s.teacher.Name}, sesi {s.subject?.Name} di kelas {s.Class?.Name} dimulai sekarang ({jamSkgStr})."
-                        );
-                        _logger.LogInformation($"Notif terkirim ke {s.teacher.Name} untuk mapel {s.subject?.Name}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"Gagal kirim notif ke {s.teacher.Name}: {ex.Message}");
-                    }
-                }
+                await SendFcmSafe(firebase, s.teacher?.fcmToken, "🔔 Waktunya Mengajar!", 
+                    $"Pak/Bu {s.teacher?.Name}, sesi {s.subject?.Name} di kelas {s.Class?.Name} dimulai sekarang ({jamSkgStr}).", s.teacher?.Name, s.id);
+            }
+
+            // 4. LOGIKA NOTIFIKASI PENGINGAT TUGAS (5 MENIT SEBELUM SELESAI)
+            var limaMenitLagi = sekarangWIB.AddMinutes(5);
+            var schedulesSelesaiLimaMenitLagi = schedules.Where(s =>
+                s.sessionEnd != null &&
+                s.sessionEnd.endTime.Hours == limaMenitLagi.Hour &&
+                s.sessionEnd.endTime.Minutes == limaMenitLagi.Minute
+            ).ToList();
+
+            foreach (var s in schedulesSelesaiLimaMenitLagi)
+            {
+                await SendFcmSafe(firebase, s.teacher?.fcmToken, "🔔 Sesi Hampir Berakhir!", 
+                    $"Pak/Bu {s.teacher?.Name}, sesi {s.subject?.Name} akan berakhir dalam 5 menit. Jangan lupa catat tugas jika ada!", s.teacher?.Name, s.id);
+            }
+        }
+
+        private async Task SendFcmSafe(FirebaseNotificationService firebase, string token, string title, string body, string teacherName, int? scheduleId = null)
+        {
+            if (string.IsNullOrEmpty(token)) return;
+            try
+            {
+                await firebase.SendNotificationAsync(token, title, body, scheduleId);
+                _logger.LogInformation($"[Watcher] Notif '{title}' terkirim ke {teacherName}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"[Watcher] Gagal kirim notif ke {teacherName}: {ex.Message}");
             }
         }
     }

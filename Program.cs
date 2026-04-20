@@ -53,25 +53,22 @@ var app = builder.Build();
 // --- MIDDLEWARE CORS MANUAL (BRUTE FORCE) ---
 app.Use(async (context, next) =>
 {
+    // Ambil origin dari mana pun permintaan datang
     var origin = context.Request.Headers["Origin"].ToString();
-    
-    // Log di terminal laptop untuk memastikan request masuk
-    Console.WriteLine($"[CORS DEBUG] {context.Request.Method} dari: {origin || "No Origin"} ke: {context.Request.Path}");
-
     if (!string.IsNullOrEmpty(origin))
     {
-        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+        context.Response.Headers.Add("Access-Control-Allow-Origin", origin);
     }
     else
     {
-        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
     }
 
-    context.Response.Headers["Access-Control-Allow-Headers"] = "*";
-    context.Response.Headers["Access-Control-Allow-Methods"] = "*";
-    context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+    context.Response.Headers.Add("Access-Control-Allow-Headers", "*");
+    context.Response.Headers.Add("Access-Control-Allow-Methods", "*");
+    context.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
 
-    // Langsung tangani Pre-flight (OPTIONS)
+    // Jika ini adalah permintaan "Cek Pintu" (OPTIONS), langsung kembalikan OK
     if (context.Request.Method == "OPTIONS")
     {
         context.Response.StatusCode = 200;

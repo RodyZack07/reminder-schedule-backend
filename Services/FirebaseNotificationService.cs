@@ -1,4 +1,4 @@
-﻿using FirebaseAdmin;
+using FirebaseAdmin;
 using FirebaseAdmin.Messaging;
 using Google.Apis.Auth.OAuth2;
 using System.IO;
@@ -35,7 +35,7 @@ namespace reminder_schedule_backend.Services
                 });
             }
         }
-        public async Task SendNotificationAsync(string token, string title, string body)
+        public async Task SendNotificationAsync(string token, string title, string body, int? scheduleId = null)
         {
             var message = new Message()
             {
@@ -45,23 +45,42 @@ namespace reminder_schedule_backend.Services
                     Title = title,
                     Body = body
                 },
+                Data = new Dictionary<string, string>()
+                {
+                    { "scheduleId", scheduleId?.ToString() ?? "" },
+                    { "click_action", "CREATE_TASK_REPLY" }
+                },
                 Android = new AndroidConfig()
                 {
                     Priority = Priority.High,
                     Notification = new AndroidNotification()
                     {
-                        // Ganti baris VibrateConfig menjadi dua baris di bawah ini:
                         DefaultVibrateTimings = false,
                         VibrateTimingsMillis = new long[] { 200, 100, 200, 100, 200 },
-                        Sound = "default"
+                        Sound = "default",
+                        ClickAction = "CREATE_TASK_REPLY"
+                    }
+                },
+                Webpush = new WebpushConfig()
+                {
+                    Notification = new WebpushNotification()
+                    {
+                        Title = title,
+                        Body = body,
+                        Icon = "/icon-192x192.png",
+                        Badge = "/icon-192x192.png"
+                    },
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "scheduleId", scheduleId?.ToString() ?? "" }
                     }
                 }
             };
 
             try
             {
-                await FirebaseMessaging.DefaultInstance.SendAsync(message);
-                Console.WriteLine($"[FCM] Notifikasi Sukses Terkirim!");
+                var response = await FirebaseMessaging.DefaultInstance.SendAsync(message);
+                Console.WriteLine($"[FCM] Notifikasi Sukses Terkirim! ID: {response}");
             }
             catch (Exception ex)
             {
