@@ -69,6 +69,18 @@ namespace reminder_schedule_backend.Controllers
             return Ok(new { success = true, message = "Token berhasil diperbarui", data = result });
         }
 
+        [HttpPatch("update-fcm-token")]
+        [Authorize]
+        public async Task<IActionResult> UpdateFcmToken([FromBody] UpdateFcmTokenDto dto)
+        {
+            // Ambil ID dari Token JWT yang sedang login
+            var teacherId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value!);
+
+            await _service.UpdateFcmTokenAsync(teacherId, dto.Token);
+
+            return Ok(new { success = true, message = "FCM Token berhasil diperbarui" });
+        }
+
         //-------------------------------LOGOUT TEACHER-------------------------------
         [HttpPost("logout")]
         [Authorize(Roles = "teacher")]

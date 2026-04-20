@@ -41,9 +41,14 @@ builder.Services.AddAuthorization();
 //ALLOW FRONTEND TO ACCESS API
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    // Gunakan AddPolicy dan beri nama "AllowFrontend"
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173") 
+        policy.WithOrigins(
+            "http://localhost:3000",
+            "https://regard-beverages-ideal-concerning.trycloudflare.com"
+
+            ) 
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -52,12 +57,16 @@ builder.Services.AddCors(options =>
 
 
 
-
 //REGISTER SERVICES
 builder.Services.AddScoped<TeacherService>();
 builder.Services.AddScoped<SubjectService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<ScheduleService>();
+builder.Services.AddScoped<ClassService>();
+builder.Services.AddScoped<TaskService>();
+builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<FirebaseNotificationService>();
+builder.Services.AddHostedService<ScheduleWatcher>();
 
 var app = builder.Build();
 

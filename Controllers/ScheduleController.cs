@@ -17,7 +17,6 @@ namespace reminder_schedule_backend.Controllers
 
         //-------------------------------GET ALL SCHEDULES-------------------------------
         [HttpGet]
-        [Authorize(Roles = "admin")]
         public async Task<IActionResult> GetAll()
         {
             var result = await _service.GetAllAsync();
@@ -27,7 +26,7 @@ namespace reminder_schedule_backend.Controllers
 
         //-------------------------------GET SCHEDULE BY ID-------------------------------
         [HttpGet("{id:int}")]
-        [Authorize(Roles = "admin")]
+        [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _service.GetByIdAsync(id);
@@ -36,7 +35,7 @@ namespace reminder_schedule_backend.Controllers
 
         //------------------------------GET SCHEDULES BY TEACHER ID-------------------------------
         [HttpGet("teacher/{teacherId:int}")]
-        [Authorize(Roles = "admin,teacher")]
+        [Authorize]
         public async Task<IActionResult> GetByTeacherId(int teacherId)
         {
             var result = await _service.GetScheduleByTeacherAsync(teacherId);
@@ -45,7 +44,7 @@ namespace reminder_schedule_backend.Controllers
 
         //------------------------------GET SCHEDULES BY TODAY-----------------------------------
         [HttpGet("teacher/{teacherId:int}/today")]
-        [Authorize(Roles = "admin,teacher")]
+        [Authorize]
         public async Task<IActionResult> GetToday(int teacherId)
         {
             var result = await _service.GetScheduleTodayAsync(teacherId);

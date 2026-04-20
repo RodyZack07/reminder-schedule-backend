@@ -16,14 +16,17 @@ namespace reminder_schedule_backend.Migrations
                 name: "Admins",
                 columns: table => new
                 {
-                    id = table.Column<string>(type: "text", nullable: false),
-                    nama = table.Column<string>(type: "text", nullable: false),
-                    password = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    RefreshToken = table.Column<string>(type: "text", nullable: true),
+                    RefreshTokenExpiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Admins", x => x.id);
+                    table.PrimaryKey("PK_Admins", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -32,9 +35,9 @@ namespace reminder_schedule_backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    startime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    endime = table.Column<TimeSpan>(type: "interval", nullable: false)
+                    Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    startTime = table.Column<TimeSpan>(type: "interval", nullable: false),
+                    endTime = table.Column<TimeSpan>(type: "interval", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -47,7 +50,7 @@ namespace reminder_schedule_backend.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false)
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,34 +61,37 @@ namespace reminder_schedule_backend.Migrations
                 name: "Teachers",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    passwordHash = table.Column<string>(type: "text", nullable: true)
+                    Nik = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    passwordHash = table.Column<string>(type: "text", nullable: true),
+                    refreshToken = table.Column<string>(type: "text", nullable: true),
+                    refreshTokenExpiryTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Teachers", x => x.id);
+                    table.PrimaryKey("PK_Teachers", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Classses",
+                name: "Classes",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Grade = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     TeacherId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Classses", x => x.Id);
+                    table.PrimaryKey("PK_Classes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Classses_Teachers_TeacherId",
+                        name: "FK_Classes_Teachers_TeacherId",
                         column: x => x.TeacherId,
                         principalTable: "Teachers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -95,22 +101,30 @@ namespace reminder_schedule_backend.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     day = table.Column<int>(type: "integer", nullable: false),
-                    classId = table.Column<int>(type: "integer", nullable: true),
+                    teacherId = table.Column<int>(type: "integer", nullable: false),
+                    classId = table.Column<int>(type: "integer", nullable: false),
                     subjectId = table.Column<int>(type: "integer", nullable: false),
-                    sessionId = table.Column<int>(type: "integer", nullable: false)
+                    sessionStartId = table.Column<int>(type: "integer", nullable: false),
+                    sessionEndId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Schedules", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Schedules_Classses_classId",
+                        name: "FK_Schedules_Classes_classId",
                         column: x => x.classId,
-                        principalTable: "Classses",
+                        principalTable: "Classes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Schedules_Sessions_sessionId",
-                        column: x => x.sessionId,
+                        name: "FK_Schedules_Sessions_sessionEndId",
+                        column: x => x.sessionEndId,
+                        principalTable: "Sessions",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Sessions_sessionStartId",
+                        column: x => x.sessionStartId,
                         principalTable: "Sessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -120,33 +134,39 @@ namespace reminder_schedule_backend.Migrations
                         principalTable: "Subjects",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Schedules_Teachers_teacherId",
+                        column: x => x.teacherId,
+                        principalTable: "Teachers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Students",
+                name: "TaskReminders",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    nis = table.Column<int>(type: "integer", nullable: false),
-                    nama = table.Column<string>(type: "text", nullable: false),
-                    tanggalLahir = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    classId = table.Column<int>(type: "integer", nullable: true)
+                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    status = table.Column<bool>(type: "boolean", nullable: false),
+                    remindAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    scheduleId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Students", x => x.id);
+                    table.PrimaryKey("PK_TaskReminders", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Students_Classses_classId",
-                        column: x => x.classId,
-                        principalTable: "Classses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        name: "FK_TaskReminders_Schedules_scheduleId",
+                        column: x => x.scheduleId,
+                        principalTable: "Schedules",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classses_TeacherId",
-                table: "Classses",
+                name: "IX_Classes_TeacherId",
+                table: "Classes",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
@@ -155,9 +175,14 @@ namespace reminder_schedule_backend.Migrations
                 column: "classId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Schedules_sessionId",
+                name: "IX_Schedules_sessionEndId",
                 table: "Schedules",
-                column: "sessionId");
+                column: "sessionEndId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Schedules_sessionStartId",
+                table: "Schedules",
+                column: "sessionStartId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Schedules_subjectId",
@@ -165,14 +190,19 @@ namespace reminder_schedule_backend.Migrations
                 column: "subjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_classId",
-                table: "Students",
-                column: "classId");
+                name: "IX_Schedules_teacherId",
+                table: "Schedules",
+                column: "teacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Students_nis",
-                table: "Students",
-                column: "nis",
+                name: "IX_TaskReminders_scheduleId",
+                table: "TaskReminders",
+                column: "scheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Teachers_Nik",
+                table: "Teachers",
+                column: "Nik",
                 unique: true);
         }
 
@@ -183,19 +213,19 @@ namespace reminder_schedule_backend.Migrations
                 name: "Admins");
 
             migrationBuilder.DropTable(
+                name: "TaskReminders");
+
+            migrationBuilder.DropTable(
                 name: "Schedules");
 
             migrationBuilder.DropTable(
-                name: "Students");
+                name: "Classes");
 
             migrationBuilder.DropTable(
                 name: "Sessions");
 
             migrationBuilder.DropTable(
                 name: "Subjects");
-
-            migrationBuilder.DropTable(
-                name: "Classses");
 
             migrationBuilder.DropTable(
                 name: "Teachers");

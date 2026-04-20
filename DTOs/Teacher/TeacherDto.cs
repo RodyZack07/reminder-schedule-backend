@@ -48,6 +48,13 @@ namespace reminder_schedule_backend.DTOs.Teacher
         public string Password { get; set; } = null!;
     }
 
+    //-------------------------UPDATE FCM TOKEN DTO----------------------
+    public class UpdateFcmTokenDto
+    {
+        [Required]
+        public string Token { get; set; } = null!;
+    }
+
     //---------------------------TEACHER LOGIN RESPONSE DTO----------------------
     public class TeacherLoginResponseDto
     {

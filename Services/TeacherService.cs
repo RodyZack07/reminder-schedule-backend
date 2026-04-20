@@ -92,7 +92,7 @@ namespace reminder_schedule_backend.Services
             var refreshToken = RefreshToken(teacher);
 
             teacher.refreshToken = HashPassword(refreshToken);
-            teacher.refreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            teacher.refreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _db.SaveChangesAsync();
 
             httpResponse.Cookies.Append("refreshToken", refreshToken, new CookieOptions
@@ -100,7 +100,7 @@ namespace reminder_schedule_backend.Services
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.Now.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(7)
             });
 
 
@@ -120,13 +120,13 @@ namespace reminder_schedule_backend.Services
 
             var teacher = await _db.Teachers.FirstOrDefaultAsync(t => t.refreshToken == hashedToken);
 
-            if (teacher == null || teacher.refreshTokenExpiryTime <= DateTime.Now)
+            if (teacher == null || teacher.refreshTokenExpiryTime <= DateTime.UtcNow)
                 throw new UnauthorizedException("Invalid or expired refresh token");
 
             var newRefreshToken = RefreshToken(teacher);
             teacher.refreshToken = HashPassword(newRefreshToken);
 
-            teacher.refreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            teacher.refreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
             await _db.SaveChangesAsync();
 
             httpResponse.Cookies.Append("refreshToken", newRefreshToken, new CookieOptions
@@ -134,10 +134,20 @@ namespace reminder_schedule_backend.Services
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTime.Now.AddDays(7)
+                Expires = DateTime.UtcNow.AddDays(7)
             });
 
             return TeacherLoginResponseDto(teacher, GenerateToken(teacher));
+        }
+
+        //---------------------------UPDATE TEACHER FCM TOKEN----------------------
+        public async Task UpdateFcmTokenAsync(int teacherId, string token)
+        {
+            var teacher = await _db.Teachers.FindAsync(teacherId)
+                ?? throw new NotFoundException("Guru tidak ditemukan");
+
+            teacher.fcmToken = token;
+            await _db.SaveChangesAsync();
         }
 
         //---------------------------TEACHER LOGOUT----------------------
@@ -206,7 +216,7 @@ namespace reminder_schedule_backend.Services
                 issuer: _config["Jwt:Issuer"],
                 claims: claims,
                 audience: _config["Jwt:Audience"],
-                expires: DateTime.Now.AddHours(1),
+                expires: DateTime.UtcNow.AddHours(1),
                 signingCredentials: credintials
             );
                 

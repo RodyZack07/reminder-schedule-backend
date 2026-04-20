@@ -24,8 +24,11 @@ namespace reminder_schedule_backend.Migrations
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Admin", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -35,9 +38,15 @@ namespace reminder_schedule_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("RefreshTokenExpiry")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -52,9 +61,15 @@ namespace reminder_schedule_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Grade")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int?>("TeacherId")
                         .HasColumnType("integer");
@@ -63,7 +78,7 @@ namespace reminder_schedule_backend.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Classses");
+                    b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Schedule", b =>
@@ -74,25 +89,35 @@ namespace reminder_schedule_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
 
-                    b.Property<int?>("classId")
+                    b.Property<int>("classId")
                         .HasColumnType("integer");
 
                     b.Property<int>("day")
                         .HasColumnType("integer");
 
-                    b.Property<int>("sessionId")
+                    b.Property<int>("sessionEndId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("sessionStartId")
                         .HasColumnType("integer");
 
                     b.Property<int>("subjectId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("teacherId")
                         .HasColumnType("integer");
 
                     b.HasKey("id");
 
                     b.HasIndex("classId");
 
-                    b.HasIndex("sessionId");
+                    b.HasIndex("sessionEndId");
+
+                    b.HasIndex("sessionStartId");
 
                     b.HasIndex("subjectId");
+
+                    b.HasIndex("teacherId");
 
                     b.ToTable("Schedules");
                 });
@@ -107,48 +132,18 @@ namespace reminder_schedule_backend.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<TimeSpan>("endime")
+                    b.Property<TimeSpan>("endTime")
                         .HasColumnType("interval");
 
-                    b.Property<TimeSpan>("startime")
+                    b.Property<TimeSpan>("startTime")
                         .HasColumnType("interval");
 
                     b.HasKey("Id");
 
                     b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("reminder_schedule_backend.Models.Student", b =>
-                {
-                    b.Property<int>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("id"));
-
-                    b.Property<int?>("classId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("nama")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("nis")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("tanggalLahir")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("id");
-
-                    b.HasIndex("classId");
-
-                    b.HasIndex("nis")
-                        .IsUnique();
-
-                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Subject", b =>
@@ -161,11 +156,41 @@ namespace reminder_schedule_backend.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Subjects");
+                });
+
+            modelBuilder.Entity("reminder_schedule_backend.Models.TaskReminder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTime>("remindAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("scheduleId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("status")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("scheduleId");
+
+                    b.ToTable("TaskReminders");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Teacher", b =>
@@ -178,36 +203,58 @@ namespace reminder_schedule_backend.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Nik")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("fcmToken")
                         .HasColumnType("text");
 
                     b.Property<string>("passwordHash")
                         .HasColumnType("text");
 
+                    b.Property<string>("refreshToken")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("refreshTokenExpiryTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Nik")
+                        .IsUnique();
 
                     b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Class", b =>
                 {
-                    b.HasOne("reminder_schedule_backend.Models.Teacher", "Teacher")
+                    b.HasOne("reminder_schedule_backend.Models.Teacher", null)
                         .WithMany("Classes")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Teacher");
+                        .HasForeignKey("TeacherId");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Schedule", b =>
                 {
                     b.HasOne("reminder_schedule_backend.Models.Class", "Class")
-                        .WithMany("schedules")
-                        .HasForeignKey("classId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("reminder_schedule_backend.Models.Session", "session")
                         .WithMany()
-                        .HasForeignKey("sessionId")
+                        .HasForeignKey("classId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("reminder_schedule_backend.Models.Session", "sessionEnd")
+                        .WithMany()
+                        .HasForeignKey("sessionEndId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("reminder_schedule_backend.Models.Session", "sessionStart")
+                        .WithMany()
+                        .HasForeignKey("sessionStartId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -217,33 +264,39 @@ namespace reminder_schedule_backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("reminder_schedule_backend.Models.Teacher", "teacher")
+                        .WithMany("Schedules")
+                        .HasForeignKey("teacherId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Class");
 
-                    b.Navigation("session");
+                    b.Navigation("sessionEnd");
+
+                    b.Navigation("sessionStart");
 
                     b.Navigation("subject");
+
+                    b.Navigation("teacher");
                 });
 
-            modelBuilder.Entity("reminder_schedule_backend.Models.Student", b =>
+            modelBuilder.Entity("reminder_schedule_backend.Models.TaskReminder", b =>
                 {
-                    b.HasOne("reminder_schedule_backend.Models.Class", "Class")
-                        .WithMany("students")
-                        .HasForeignKey("classId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("reminder_schedule_backend.Models.Schedule", "Schedule")
+                        .WithMany()
+                        .HasForeignKey("scheduleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Class");
-                });
-
-            modelBuilder.Entity("reminder_schedule_backend.Models.Class", b =>
-                {
-                    b.Navigation("schedules");
-
-                    b.Navigation("students");
+                    b.Navigation("Schedule");
                 });
 
             modelBuilder.Entity("reminder_schedule_backend.Models.Teacher", b =>
                 {
                     b.Navigation("Classes");
+
+                    b.Navigation("Schedules");
                 });
 #pragma warning restore 612, 618
         }
