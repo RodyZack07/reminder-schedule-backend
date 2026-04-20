@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using reminder_schedule_backend.Services;
 using reminder_schedule_backend.DTOs.Task; 
@@ -42,6 +42,14 @@ namespace reminder_schedule_backend.Controllers
         {
             var task = await _taskService.CreateTask(dto);
             return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
+        }
+
+        [HttpPatch("{id}")]
+        [Authorize]
+        public async Task<ActionResult<TaskResponseDto>> UpdateTask(int id, [FromBody] TaskUpdateDto dto)
+        {
+            var task = await _taskService.UpdateTask(id, dto);
+            return Ok(task);
         }
 
         [HttpDelete("{id}")]

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using reminder_schedule_backend.Data;
 using reminder_schedule_backend.DTOs.Task;
 using reminder_schedule_backend.Exceptions;
@@ -113,6 +113,26 @@ namespace reminder_schedule_backend.Services
                      .Include(s => s.sessionStart) 
                      .LoadAsync();
 
+            return ToTaskResponseDto(task);
+        }
+
+        //---------------------------UPDATE TASK----------------------
+        public async Task<TaskResponseDto> UpdateTask(int id, TaskUpdateDto dto)
+        {
+            var task = await _db.TaskReminders
+                .Include(t => t.Schedule).ThenInclude(s => s.Class)
+                .Include(t => t.Schedule).ThenInclude(s => s.teacher)
+                .Include(t => t.Schedule).ThenInclude(s => s.subject)
+                .Include(t => t.Schedule).ThenInclude(s => s.sessionStart)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (task == null) throw new NotFoundException("Tugas tidak ditemukan");
+
+            if (dto.description != null) task.description = dto.description;
+            if (dto.reminderAt.HasValue) task.remindAt = dto.reminderAt.Value;
+            if (dto.status.HasValue) task.status = dto.status.Value;
+
+            await _db.SaveChangesAsync();
             return ToTaskResponseDto(task);
         }
 

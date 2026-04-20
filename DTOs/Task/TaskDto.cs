@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace reminder_schedule_backend.DTOs.Task
 {
@@ -13,8 +13,9 @@ namespace reminder_schedule_backend.DTOs.Task
 
     public class TaskUpdateDto
     {
-        public string? description { get; set; } = null!; 
+        public string? description { get; set; }
         public DateTime? reminderAt { get; set; }
+        public bool? status { get; set; }
     } 
     
     public class TaskResponseDto

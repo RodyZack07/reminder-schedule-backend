@@ -37,26 +37,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 builder.Services.AddAuthorization();
 
-
-//ALLOW FRONTEND TO ACCESS API
-builder.Services.AddCors(options =>
-{
-    // Gunakan AddPolicy dan beri nama "AllowFrontend"
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins(
-            "http://localhost:3000",
-            "https://regard-beverages-ideal-concerning.trycloudflare.com"
-
-            ) 
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
-});
-
-
-
 //REGISTER SERVICES
 builder.Services.AddScoped<TeacherService>();
 builder.Services.AddScoped<SubjectService>();
@@ -70,6 +50,39 @@ builder.Services.AddHostedService<ScheduleWatcher>();
 
 var app = builder.Build();
 
+// --- MIDDLEWARE CORS MANUAL (BRUTE FORCE) ---
+app.Use(async (context, next) =>
+{
+    var origin = context.Request.Headers["Origin"].ToString();
+    
+    // Log di terminal laptop untuk memastikan request masuk
+    Console.WriteLine($"[CORS DEBUG] {context.Request.Method} dari: {origin || "No Origin"} ke: {context.Request.Path}");
+
+    if (!string.IsNullOrEmpty(origin))
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = origin;
+    }
+    else
+    {
+        context.Response.Headers["Access-Control-Allow-Origin"] = "*";
+    }
+
+    context.Response.Headers["Access-Control-Allow-Headers"] = "*";
+    context.Response.Headers["Access-Control-Allow-Methods"] = "*";
+    context.Response.Headers["Access-Control-Allow-Credentials"] = "true";
+
+    // Langsung tangani Pre-flight (OPTIONS)
+    if (context.Request.Method == "OPTIONS")
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.WriteAsync("OK");
+        return;
+    }
+
+    await next();
+});
+// --------------------------------------------
+
 app.UseGlobalExceptionHandler();
 
 // Configure the HTTP request pipeline.
@@ -79,8 +92,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
+// app.UseHttpsRedirection(); // Matikan sementara karena pakai Cloudflare Tunnel
 app.UseAuthentication();
 app.UseAuthorization();
 
